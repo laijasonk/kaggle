@@ -1,0 +1,167 @@
+Module function list
+Last update: 2018-Mar-19
+
+
+########################
+# UTILS
+#
+
+from utils import kaggle_io
+    Description
+        Take input and convert it into various different output
+
+    Function list
+        png_to_pixel_matrix( image_path, mode='RGB' )
+        mask_png_to_mask_matrix( image_path )
+        mask_png_to_mask_vector( image_path )
+        mask_png_to_nuclei_list( image_path )
+        mask_png_to_kaggle_format( image_path, image_id )
+
+from utils import kaggle_reader
+    Description
+        High level reader of kaggle input (use kaggle_io for file handling)
+
+    Function list
+        read_kaggle_csv( csv_path ):
+        load_all_images( image_dir, mode='RGB' )
+        load_all_raw_images( image_dir, mode='RGB' )
+        find_mask_bounding_box( decodedlabels, imgDF )
+        visual_check_boxes( boxDF, imgDF, imgid )
+        get_masks_from_directory( masks_directory )
+
+
+########################
+# PREPROCESSING
+#
+
+from preprocess import extract_roi
+    Description
+        Extract the ROI given an image and mask PNG/matrix/etc
+
+    Function list
+        set_image_with_png( image_path )
+        set_image_with_matrix( image_matrix )
+        set_mask_with_png( mask_path )
+        set_mask_with_matrix( mask_matrix )
+        extract_roi( padding=0, fixed_size=None )
+        get_roi()
+        save_roi_as_image( output_image_path )
+
+from preprocess import generate_negative
+    Description
+        Functions to generate a negative image/box for a given image
+
+    Function list
+        set_image_with_png( image_path )
+        set_image_with_matrix( image_matrix )
+        set_negative_box_size( negative_size )
+        set_random_seed( seed )
+        run()
+        get_negative()
+        save_negative_as_image( output_path )
+
+from preprocess import image_processing
+    Description
+        Contains functions to preprocess the raw input images, before
+        extracting ROI or running through other analysis from preprocess
+        import split_data
+
+    Function list
+        trim_extreme_pixels_in_grayscale(image_array, trim_left=1, trim_right=99)
+        process_image(image_array, options)
+        process_roi_extractions(image_df, roi_df, image_options, image_co;l_name='ImageMat', image_id_col_name='ImageId')
+
+from preprocess import split_data
+    Description
+        Split the complete dataset into various different directories
+
+    Example:
+    sys.path.append( os.path.join( '.', 'src' ) ) # point to project src/
+    from preprocess import split_data
+    output = split_data.split_data( args )
+
+    Function list:
+        split_data( imgids, split_dirnames, split_ratios, rseed=100 )
+
+
+########################
+# ANALYSIS
+#
+
+from analysis import analyze_predictions
+    Description
+        Take the lists of predicted and expected results and analyze predictions
+
+    Function list
+        set_expected( expected_values )
+        set_predicted( predicted_values )
+        set_test_set( test_values )
+        print_summary_results()
+        get_correct_predictions()
+        get_incorrect_predictions()
+        save_predictions_as_images( predictions, output_directory)
+
+from analysis import hog_classifier
+    Description
+        Histogram of Orientated Gradient method for feature extraction from
+        images containing functions to calculate gradient orientation and
+        strength for each pixel; normalizing oritentation and strength with
+        a given sized cell; averaging for a block (sliding window)
+
+    Function list
+        extract_hog_features_from_image()
+        derivative_mask_1d_centered()
+        find_grad_orientation_strength()
+        grad_histogram_by_cell()
+        block_norm_of_cell_histogram()
+        feature_extraction()
+
+from analysis import moving_window
+    Description
+        Containing functions for moving window classifier
+
+    Function list
+        pad_images(image_array,, window_sizes)
+        extract_windowed_subimages_from_image(image_array, window_sizes, step_sizes, pad_image=True)
+        rescale_image(image_array, factor=1)
+        recover_box_size(box_anchor, box_shape, resized_image_shape, original_image_shape)
+        classify_boxes(boxes, model)
+        display_boxes(image_array, reduced_boxes, boxes)
+        calculate_overlap(indices_1, indices_2, size_1, size_2)
+        remove_boxes_with_NSM(positive_boxes, threshold)
+        run_imaging_pyramid(classifier, image_array, feature_method, feature_options, image_options, window_sizes, step_sizes, nms_threshold, downscaling_factor)
+        run_moving_window(classifier, image_array, feature_method, feature_options, image_options, window_sizes, step_sizes, nms_threshold)
+
+from analysis import kaggle_evaluation
+    Description
+        Evaluate the performance according to Kaggle's metrics
+
+    Function list
+        set_predicted_masks_from_directory( predicted_masks_directory )
+        set_expected_masks_from_directory( expected_masks_directory )
+        set_predicted_masks( predicted_masks_directory )
+        set_expected_masks( expected_masks_directory )
+        calculate_iou()
+        calculate_score_from_thresholds( thresholds=None )
+        get_iou()
+        get_score()
+        get_table()
+        print_table()
+
+from analysis import tuning
+    Description
+        Functions for tuning the hyperparameters of model pipelines.
+
+    Function list
+        tune(main, model, tuned_parameters, feature_method="pixelval", fraction=1, diversity_vars=None, iterations=50, bayes=False, random_state=1)
+
+from analysis import feature_extraction
+    Description
+        Functions for extracting different types of features from an input image dataframe
+
+    Function list
+        gaussian_kernel_hadamard_product_features(image_array, extraction_options)
+        extract_gkhp_features(image_dataframe, image_col_name, extraction_options)
+        extract_hog_features(image_dataframe, image_col_name, extraction_options)
+        extract_pixel_val_as_features(image_dataframe, image_col_name)
+        feature_extraction(input_data, input_parameters, method='pixelval', extraction_options={})

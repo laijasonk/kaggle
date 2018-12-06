@@ -14,7 +14,7 @@ Steps
  * pip3 install virtualenv
  * virtualenv -p /usr/bin/python3 venv/
  * source venv/bin/activate
- * pip3 install requirements.txt
+ * pip3 install -r requirements.txt
  * pip3 freeze > requirements.txt
 
 ## Setup /data/ directory

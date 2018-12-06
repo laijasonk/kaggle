@@ -9,7 +9,11 @@
 
 """
 
-import sys, os, pandas
+import sys, os
+import numpy, pandas
+import skimage
+import skimage.io
+import skimage.transform
 
 __author__ = 'Jason K Lai'
 __contact__ = 'http://www.github.com/jklai'
@@ -69,12 +73,25 @@ class load_data( object ):
         except:
             return False
 
+    def read_image( self, image_path ):
+
+        """ Load in an image path into a RGB numpy array
+        
+        :param image_path: Path to image file
+        
+        """
+
+        image = skimage.io.imread( image_path, 0 )
+        return image
+        image = skimage.transform.resize( image, ( 300, 300 ) )
+        return image
 
 if __name__ == '__main__':
     
     # Train paths
-    train_images = '../data/train'
-    train_csv = '../data/train.csv'
+    train_images = '../../data/train'
+    train_csv = '../../data/train.csv'
+    single_image = '../../data/train/0000e88ab.jpg'
 
     # Example: Call class
     loader = load_data()
@@ -87,4 +104,10 @@ if __name__ == '__main__':
     # Example: Load csv
     input_csv = loader.csv_into_dataframe( train_csv )
     print( input_csv.head( 10 ) )
+
+    # Example: Read in image file
+    input_image = loader.read_image( single_image )
+    print( len( input_image ) )
+    print( len( input_image[0] ) )
+    print( len( input_image[0][0] ) )
 

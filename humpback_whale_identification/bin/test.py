@@ -5,6 +5,7 @@
 import sys, os
 import skimage.io
 import skimage.transform
+import skimage.color
 import math
 from glob import glob
 from tqdm import tqdm
@@ -80,8 +81,6 @@ target_dummies = pd.get_dummies(label_df['Id'])
 train_label = target_dummies.columns.values
 y_train = target_dummies.values
 
-sys.exit()
-
 train_dataset_info = []
 for name, labels in zip(data['Image'], y_train):
     train_dataset_info.append({
@@ -89,8 +88,13 @@ for name, labels in zip(data['Image'], y_train):
         'labels': labels})
 train_dataset_info = np.array(train_dataset_info)
 
+print( train_dataset_info )
+
 train_ids, test_ids, train_targets, test_target = train_test_split(
     data['Image'], data['Id'], test_size=0.1)
+
+print( len(train_ids) )
+print( len(test_ids) )
 
 class data_generator:
     
@@ -112,7 +116,7 @@ class data_generator:
             
 
     def load_image(path, shape):
-        img = skimage.io.imread(path)
+        img = skimage.color.grey2rgb( skimage.io.imread(path) )
         resized = skimage.transform.resize(img,  (shape[0], shape[1]))
         resized = resized / 255
         return resized
@@ -165,8 +169,10 @@ def gen_graph(history, title):
     plt.legend(['train', 'validation'], loc='upper left')
     plt.show()
 
-STEPS = 512
-epochs = 15
+# STEPS = 512
+# epochs = 15
+STEPS = 32
+epochs = 3
 
 def create_model(input_shape, n_out):
     base_model = MobileNet(input_shape=input_shape, include_top=False, weights=None, classes=n_out)
@@ -184,20 +190,27 @@ def create_model(input_shape, n_out):
         
     return Model(inputs=base_model.input, outputs=logits)
 
+print( "jkl: creating model" )
 model = create_model(input_shape=img_shape, n_out=n_classes)
 
+print( "jkl: compiling model" )
 model.compile(optimizer=Adam(lr=0.002), loss='categorical_crossentropy',
               metrics=[categorical_crossentropy, categorical_accuracy])
+print( "jkl: model summary" )
 model.summary()
 
+print( "jkl: callbacks" )
 callbacks = [
     ReduceLROnPlateau(monitor='val_categorical_accuracy', factor=0.5, patience=5,
                       min_delta=0.005, mode='max', cooldown=3, verbose=1)
 ]
 
+print( "jkl: fit generator" )
 hist = model.fit_generator(
     train_datagen, steps_per_epoch=STEPS, epochs=epochs, verbose=1,
     validation_data=next(validation_generator),
     callbacks = callbacks)
+
+model.save('test.h5')
 
 gen_graph(hist, "Mobile Net, lr 1e-4")
